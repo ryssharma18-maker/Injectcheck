@@ -7,23 +7,29 @@ def load_attacks():
     p = pathlib.Path(__file__).parent / "attacks.json"
     return json.loads(p.read_text(encoding="utf-8"))
 
-def send(url, key, prompt):
-    r = requests.post(
-        url,
-        headers={"Authorization": "Bearer " + key},
-        json={"message": prompt},
-        timeout=30,
-    )
+def send(url, key, prompt, provider, model):
+    headers = {"Authorization": "Bearer " + key}
+    if provider == "openai":
+        body = {"model": model, "messages": [{"role": "user", "content": prompt}]}
+    else:
+        body = {"message": prompt}
+    r = requests.post(url, headers=headers, json=body, timeout=30)
+    r.raise_for_status()
+    if provider == "openai":
+        return r.json()["choices"][0]["message"]["content"]
     return r.text
 
-def run(url, key, mutate=False):
+def run(url, key, mutate=False, provider="custom", model=""):
+    attacks = load_attacks()
+    if mutate:
+        attacks = expand(attacks)
     results = []
-    for a in (expand(load_attacks()) if mutate else load_attacks()):
+    for a in attacks:
+        hit, err = False, ""
         try:
-            reply = send(url, key, a["prompt"])
+            reply = send(url, key, a["prompt"], provider, model)
             hit = MARKER in reply
         except Exception as e:
-            reply, hit = str(e), False
-        results.append({"name": a["name"], "vulnerable": hit})
+            err = str(e)[:90]
+        results.append({"name": a["name"], "vulnerable": hit, "error": err})
     return results
-
