@@ -5,3 +5,4 @@ report.json
 *.egg-info/
 dist/
 build/
+report.html

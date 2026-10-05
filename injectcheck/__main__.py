@@ -14,12 +14,16 @@ def main():
     p.add_argument("--report", default="")
     p.add_argument("--provider", default="custom")
     p.add_argument("--model", default="")
+    p.add_argument("--html", default="")
     a = p.parse_args()
 
     results = run(a.url, a.key, a.mutate, a.provider, a.model)
     if a.report:
         open(a.report, "w").write(json.dumps(results, indent=2))
 
+    if a.html:
+        from injectcheck.report import make_html
+        open(a.html, "w", encoding="utf-8").write(make_html(results))
     bad = errs = 0
     for r in results:
         if r["error"]:
@@ -40,3 +44,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
