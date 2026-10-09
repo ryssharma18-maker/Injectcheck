@@ -27,10 +27,17 @@ Fires attack prompts at your bot, auto-mutates each one (base64, reversed, upper
 
 Copy `examples/github-action.yml` into `.github/workflows/`.
 
+## Packs
+
+- `inject` (default): tries to make the bot say a marker word it was told not to
+- `leak`: tries to make the bot reveal a secret from its system prompt. Add a canary like `Secret code: CANARY-5521` to your system prompt and run with `--secret CANARY-5521`
+- `all`: runs both
+
+    python -m injectcheck --url https://your-bot/api --key YOUR_KEY --mutate --pack all --secret CANARY-5521
 ## Roadmap
 
 - Real provider support (OpenAI-style APIs)
-- System-prompt extraction and data-leak tests
+- Data-leak tests (PII, tool misuse)
 - HTML report
 - More mutators and attack packs
 
@@ -39,4 +46,5 @@ Copy `examples/github-action.yml` into `.github/workflows/`.
 Only test systems you own or have written permission to test.
 
 MIT License
+
 

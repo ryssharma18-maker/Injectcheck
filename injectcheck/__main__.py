@@ -18,10 +18,13 @@ def main():
     p.add_argument("--pack", default="inject")
     p.add_argument("--secret", default="")
     a = p.parse_args()
-    if a.pack == "leak" and not a.secret:
+    if a.pack in ("leak", "all") and not a.secret:
         raise SystemExit("--secret is required for the leak pack")
 
-    results = run(a.url, a.key, a.mutate, a.provider, a.model, a.pack, a.secret)
+    packs = ["inject", "leak"] if a.pack == "all" else [a.pack]
+    results = []
+    for pk in packs:
+        results += run(a.url, a.key, a.mutate, a.provider, a.model, pk, a.secret if pk == "leak" else "")
     if a.report:
         open(a.report, "w").write(json.dumps(results, indent=2))
 
@@ -48,5 +51,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
