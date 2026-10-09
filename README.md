@@ -1,5 +1,11 @@
 # injectcheck
 
+
+
+![tests](https://github.com/ryssharma18-maker/Injectcheck/actions/workflows/tests.yml/badge.svg)
+
+
+
 Scan your AI chatbot for prompt-injection holes in one command.
 
 Fires attack prompts at your bot, auto-mutates each one (base64, reversed, uppercase, polite, log-wrapped), and reports which got through. Exits with code 1 on any hit, so CI can block a vulnerable deploy.
@@ -46,5 +52,6 @@ Copy `examples/github-action.yml` into `.github/workflows/`.
 Only test systems you own or have written permission to test.
 
 MIT License
+
 
 
