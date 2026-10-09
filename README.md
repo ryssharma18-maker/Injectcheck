@@ -55,3 +55,7 @@ MIT License
 
 
 
+
+## Trademark
+
+The name "InjectCheck" is not licensed. Forks must use a different name.
