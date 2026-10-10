@@ -34,3 +34,31 @@ class ErrorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+from unittest.mock import patch, Mock
+import requests
+from injectcheck.scanner import send
+
+class RetryTests(unittest.TestCase):
+    @patch("injectcheck.scanner.time.sleep")
+    @patch("injectcheck.scanner.requests.post")
+    def test_429_then_success(self, post, sleep):
+        limited = Mock(status_code=429, headers={"Retry-After": "1"})
+        success = Mock(status_code=200, headers={})
+        success.json.return_value = {"choices": [{"message": {"content": "Hello"}}]}
+        post.side_effect = [limited, success]
+        result = send("https://example.test", "x", "hello", "openai", "test-model")
+        self.assertEqual(result, "Hello")
+        self.assertEqual(post.call_count, 2)
+        sleep.assert_called_once_with(1)
+
+    @patch("injectcheck.scanner.time.sleep")
+    @patch("injectcheck.scanner.requests.post")
+    def test_persistent_429_raises_error(self, post, sleep):
+        limited = Mock(status_code=429, headers={})
+        limited.raise_for_status.side_effect = requests.HTTPError("429")
+        post.return_value = limited
+        with self.assertRaises(requests.HTTPError):
+            send("https://example.test", "x", "hello", "openai", "test-model")
+        self.assertEqual(post.call_count, 3)
+        self.assertEqual(sleep.call_count, 2)
