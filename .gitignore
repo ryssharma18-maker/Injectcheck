@@ -6,3 +6,6 @@ report.json
 dist/
 build/
 report.html
+*.pem
+*.key
+secrets*
